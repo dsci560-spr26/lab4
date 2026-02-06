@@ -18,7 +18,10 @@ from nautilus_trader.model.instruments import Equity
 from nautilus_trader.model.objects import Price, Quantity
 from nautilus_trader.persistence.wranglers import BarDataWrangler
 
-from data_loader import load_data, load_tickers, download_data, save_data, DATA_DIR
+from data_loader import (
+    load_stock_data, load_index_data, load_tickers,
+    download_data, save_stock_data, STOCK_DIR, INDEX_DIR
+)
 
 VENUE = Venue("NYSE")
 RESULT_DIR = os.path.join(os.path.dirname(__file__), "result")
@@ -108,13 +111,13 @@ def run_backtest(config_path: str = CONFIG_FILE):
     print(f"Date range: {start_date} to {end_date}")
     print(f"Parameters: {params}")
 
-    # Load data
-    if not os.listdir(DATA_DIR):
-        print("No data found. Downloading...")
+    # Load stock data
+    if not os.path.exists(STOCK_DIR) or not os.listdir(STOCK_DIR):
+        print("No stock data found. Downloading...")
         tickers = load_tickers()
         all_data = download_data(tickers, start_date=start_date, end_date=end_date)
-        save_data(all_data)
-    data = load_data()
+        save_stock_data(all_data)
+    data = load_stock_data()
 
     if ticker not in data:
         print(f"Ticker {ticker} not found in data. Available: {list(data.keys())[:10]}...")
