@@ -23,8 +23,8 @@ pip install -e .
 ## Quick Start
 
 ```bash
-# 1. Download stock data (S&P 500, 2022-2025)
-uv run python data_loader.py
+# 1. Download stock data (S&P 500, 2022-2025) but since we have the data, you don't have to run it
+#uv run python data_loader.py
 
 # 2. Run backtest
 uv run python backtester.py
