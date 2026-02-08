@@ -1,0 +1,17 @@
+# EMA Crossover Strategy Config
+# Usage: python backtester.py config_ema.yaml
+
+strategy:
+  module: Strategy.ema_cross
+  class: EMACrossStrategy
+  params:
+    ticker: AAPL
+    invest_amount: 100000
+    fast_ema_period: 10
+    slow_ema_period: 20
+
+start_date: "2015-01-01"
+end_date: "2025-12-31"
+starting_cash: 100000
+
+output_dir: result/EMA_AAPL_10Y
