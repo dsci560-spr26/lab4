@@ -1,124 +1,112 @@
-# NautilusTrader Backtesting Project
+# DSCI-560 Lab 4: Algorithmic Trading
 
-A backtesting framework for trading strategies using NautilusTrader.
+## Team Members
+- Tien-Ching (Jeremy) Hsieh
+- HsiangYu Tsai
+- Justin Chen
 
-## Setup
+## Project Overview
 
-### Using uv (Recommended)
+This project implements a momentum-based algorithmic trading strategy with backtesting capabilities using NautilusTrader.
+
+## Installation
+
+### Prerequisites
+- Python 3.11+
+- pip or uv
+
+### Install Dependencies
 
 ```bash
-# Install dependencies
-uv pip install -e .
+# Using pip
+pip install nautilus_trader yfinance quantstats pandas pyyaml
 
-# Or sync from pyproject.toml
+# Or using uv
 uv sync
-```
-
-### Using pip
-
-```bash
-pip install -e .
-```
-
-## Quick Start
-
-```bash
-# 1. Download stock data (S&P 500, 2022-2025) but since we have the data, you don't have to run it
-#uv run python data_loader.py
-
-# 2. Run backtest
-uv run python backtester.py
 ```
 
 ## Project Structure
 
 ```
 lab4/
-├── backtester.py           # Backtest engine runner
-├── config.yaml             # Backtest configuration
-├── data_loader.py          # Downloads OHLCV data from Yahoo Finance
-├── ticker.yaml             # Stock ticker list
-├── Strategy/               # Trading strategies
+├── backtester.py           # Main backtest engine
+├── data_loader.py          # Data download utility
+├── config_momentum.yaml    # Momentum strategy config
+├── config_index.yaml       # SPY benchmark config
+├── Strategy/
 │   ├── __init__.py
-│   ├── strategy.py         # EMA crossover strategy
-│   └── stoch.py            # Stochastics crossover strategy
-├── data/                   # Stock data (CSV files)
-└── result/                 # Backtest output reports
-```
-
-## Configuration
-
-Edit `config.yaml` to customize your backtest:
-
-```yaml
-# Strategy definition
-strategy:
-  name: stoch                        # strategy identifier
-  module: Strategy.stoch             # module path (Strategy/stoch.py)
-  class: StochCrossStrategy          # strategy class name
-  config_class: StochConfig          # config class name
-
-# Stock ticker
-ticker: AAPL
-
-# Date range
-start_date: "2022-01-01"
-end_date: "2025-01-01"
-
-# Account settings
-starting_cash: 100000
-trade_size: 100
-
-# Strategy parameters (passed to config_class)
-params:
-  k_period: 14
-  d_period: 3
-```
-
-### Switching Strategies
-
-To use EMA crossover strategy:
-
-```yaml
-strategy:
-  name: ema
-  module: Strategy.strategy
-  class: EMACrossStrategy
-  config_class: EMACrossConfig
-
-params:
-  fast_ema_period: 10
-  slow_ema_period: 20
-```
-
-To use Stochastics strategy:
-
-```yaml
-strategy:
-  name: stoch
-  module: Strategy.stoch
-  class: StochCrossStrategy
-  config_class: StochConfig
-
-params:
-  k_period: 14
-  d_period: 3
+│   ├── momentum_rebalance.py   # Momentum + monthly rebalancing
+│   ├── momentum.py             # Momentum buy-and-hold
+│   ├── index_hold.py           # SPY benchmark
+│   └── stock_selector.py       # Selection algorithms
+├── data/
+│   ├── stock/              # 503 S&P 500 stock CSVs
+│   └── index/              # SPY, QQQ CSVs
+└── result/                 # Backtest results
 ```
 
 ## Usage
 
+### 1. Download Data (First Time Only)
+
 ```bash
-# Run backtest with config.yaml settings
-uv run python backtester.py
+python data_loader.py
 ```
 
-Results saved to `result/{strategy}_{ticker}/`:
-- `account.csv` - Account balance history
-- `positions.csv` - Position report
-- `order_fills.csv` - Order execution report
-- `report.html` - QuantStats analysis
-- `config.yaml` - Config used for this run
+This downloads 10 years of daily price data for 503 S&P 500 stocks.
 
-## Log
+### 2. Run Momentum Strategy Backtest
 
-- 20260202: downloaded data from 2023-2025
+```bash
+python backtester.py config_momentum.yaml
+```
+
+### 3. Run SPY Benchmark Backtest
+
+```bash
+python backtester.py config_index.yaml
+```
+
+### 4. View Results
+
+Results are saved in the `result/` directory:
+- `equity_curve.csv` - Daily portfolio values
+- `summary.yaml` - Performance summary
+- `report.html` - QuantStats performance report (open in browser)
+
+## Configuration
+
+Edit the YAML config files to customize:
+
+```yaml
+strategy:
+  module: Strategy.momentum_rebalance
+  class: MomentumRebalanceStrategy
+  params:
+    invest_amount: 100000    # Amount to invest
+    top_n: 50                # Number of stocks to hold
+    lookback_days: 200       # Momentum lookback period
+    rebalance_frequency: monthly
+
+start_date: "2015-01-01"
+end_date: "2025-12-31"
+starting_cash: 100000
+output_dir: result/MomentumRebalance_10Y
+```
+
+## Performance Results (10-Year Backtest: 2015-2025)
+
+| Metric | Momentum Strategy | SPY Benchmark |
+|--------|-------------------|---------------|
+| Total Return | 703.75% | 302.62% |
+| CAGR | 20.93% | 13.54% |
+| Sharpe Ratio | 1.02 | 0.80 |
+| Max Drawdown | -33.89% | -33.71% |
+
+## Algorithm Description
+
+The momentum strategy:
+1. Calculates 200-day returns for all 503 stocks
+2. Selects top 50 stocks by momentum
+3. Allocates equal weight to each stock
+4. Rebalances monthly to capture ongoing momentum
