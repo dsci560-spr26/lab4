@@ -1,11 +1,11 @@
 """Trading strategies module."""
 
-from Strategy.strategy import EMACrossStrategy, EMACrossConfig
-from Strategy.stoch import StochCrossStrategy, StochConfig
+from Strategy.momentum import MomentumStrategy
+from Strategy.momentum_rebalance import MomentumRebalanceStrategy
+from Strategy.index_hold import IndexHoldStrategy
 
 __all__ = [
-    "EMACrossStrategy",
-    "EMACrossConfig",
-    "StochCrossStrategy",
-    "StochConfig",
+    "MomentumStrategy",
+    "MomentumRebalanceStrategy",
+    "IndexHoldStrategy",
 ]
