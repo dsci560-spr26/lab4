@@ -1,0 +1,15 @@
+# Index Hold Strategy Config
+# Usage: python backtester.py config_index.yaml
+
+strategy:
+  module: Strategy.index_hold
+  class: IndexHoldStrategy
+  params:
+    ticker: SPY
+    invest_amount: 100000
+
+start_date: "2015-01-01"
+end_date: "2025-12-31"
+starting_cash: 100000
+
+output_dir: result/IndexHold_10Y
