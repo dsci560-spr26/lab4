@@ -1,0 +1,9 @@
+end_date: '2025-12-31'
+name: MomentumRebalanceStrategy
+params:
+  invest_amount: 100000
+  lookback_days: 200
+  rebalance_frequency: monthly
+  top_n: 50
+start_date: '2015-01-01'
+starting_cash: 100000
